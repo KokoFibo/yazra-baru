@@ -11,15 +11,12 @@ class DataController extends Controller
 
     public function index()
     {
-        $data = Data::get();
+        $data = Data::orderBy('id', 'desc')->get();
         if (request()->ajax()) {
 
             return datatables()->of($data)
                 ->addColumn('aksi', function ($data) {
-
-                    $button = "<button class=' edit btn btn-danger' id='" . $data->id . "'>Edit</button>";
-                    $button .= "<button class=' hapus btn btn-danger' id='" . $data->id . "'>Hapus</button>";
-                    return $button;
+                    return view('tombol')->with('data', $data);
                 })
                 ->rawColumns(['aksi'])
                 ->make(true);
@@ -27,69 +24,69 @@ class DataController extends Controller
         return view('home');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
-        //
+        return view('create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
-        //
+        $request->validate(
+            [
+                'nama' => 'required',
+                'alamat' => 'required',
+                'telp' => 'required'
+            ],
+            [
+                'nama.required' => 'Nama Wajib diisi',
+                'alamat.required' => 'Alamat Wajib diisi',
+                'telp.required' => 'Telepon Wajib diisi',
+            ]
+        );
+        $data = new Data();
+        $data->nama = $request->nama;
+        $data->alamat = $request->alamat;
+        $data->telp = $request->telp;
+        $simpan = $data->save();
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Data  $data
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Data $data)
+    public function edit($id)
     {
-        //
+
+
+        $data = Data::where('id', $id)->first();
+        return view('edit', compact('data'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Data  $data
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Data $data)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate(
+            [
+                'nama' => 'required',
+                'alamat' => 'required',
+                'telp' => 'required'
+            ],
+            [
+                'nama.required' => 'Nama Wajib diisi',
+                'alamat.required' => 'Alamat Wajib diisi',
+                'telp.required' => 'Telepon Wajib diisi',
+            ]
+        );
+
+        $data = [
+            'nama' => $request->nama,
+            'alamat' => $request->alamat,
+            'telp' => $request->telp,
+        ];
+        Data::where('id', $id)->update($data);
+        return response()->json(['success' => "Data berhasil di update"]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Data  $data
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Data $data)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Data  $data
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Data $data)
+    public function destroy($id)
     {
-        //
+        Data::where('id', $id)->delete();
     }
 }

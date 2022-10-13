@@ -22,4 +22,4 @@ Route::get('/home', function () {
     return view('home');
 });
 
-Route::get('data.index',[DataController::class, 'index'])->name('data');
+Route::resource('data', DataController::class);
